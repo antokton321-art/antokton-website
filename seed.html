@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seeder – Antokton</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; background:#0f0f10; color:#f2f2f2; padding:24px; }
+    h1 { color:#ff2b2b; }
+    button { padding:10px 14px; border:0; background:#ff2b2b; color:white; cursor:pointer; border-radius:8px; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    code, pre { background:#161617; color:#ddd; padding:8px 10px; border-radius:6px; display:block; overflow:auto; }
+    .card { background:#141416; border:1px solid #222; padding:18px; border-radius:12px; margin:16px 0; }
+    label { display:block; margin:10px 0 6px; color:#bbb; }
+    input { width:100%; padding:10px; border-radius:8px; background:#1a1b1d; color:#eee; border:1px solid #2a2b2e; }
+    .ok { color:#8ef0a8; }
+    .warn { color:#ffd25f; }
+    .err { color:#ff8080; }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBEab_Fq7Wf64uv-hBF0gD0MI5XeDZh9O4",
+      authDomain: "antokton-pune.firebaseapp.com",
+      projectId: "antokton-pune",
+      storageBucket: "antokton-pune.appspot.com",
+      messagingSenderId: "270145360967",
+      appId: "1:270145360967:web:1a8f33b3e0f61a9fbc4f1a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const countries = [
+      "Antokton","Angli","Austri","Belgjike","Bullgari","Danimarkë","Francë","Greqi","Gjermani",
+      "Hollandë","Irlandë","Itali","Kroaci","Luksemburg","Malta","Portugali","Qipro","Rumani",
+      "Slloveni","Spanjë","Turki","Zvicër"
+    ];
+
+    const regionsByCountry = {
+      "Antokton": ["Shkodër & Malesi VP","Prishtinë & Luginë/Fusha VL","Shkup & Qendër Lindore","Çamëri & Bregdet J/L"],
+      "Belgjike": ["Flanders","Wallonia","Brussels Capital"],
+      "Gjermani": ["Veri","Qendër","Jug"],
+      "Francë": ["Perëndim","Qendër","Lindje"],
+      "Itali": ["Veri","Qendër","Jug"],
+      "Spanjë": ["Veri","Qendër","Jug"],
+      "Turki": ["Veri","Qendër","Jug"],
+      "Zvicër": ["Veri","Qendër","Jug"]
+    };
+
+    const regionFallback = ["Veri","Qendër","Jug"];
+
+    const citiesByCountry = {
+      "Belgjike": ["Brussels","Antwerp","Liège"],
+      "Gjermani": ["Berlin","Frankfurt","München"],
+      "Francë": ["Paris","Lyon","Strasbourg"],
+      "Itali": ["Roma","Milano","Napoli"],
+      "Spanjë": ["Madrid","Barcelona","Sevilla"],
+      "Turki": ["Ankara","Istanbul","Izmir"],
+      "Zvicër": ["Bernë","Zürich","Geneva"],
+      "Antokton": ["Shkodër","Prishtinë","Shkup","Filat"]
+    };
+
+    const professions = [
+      {cat:"IT & Softuer", roles:["Programues","QA/Tester","DevOps","SysAdmin"]},
+      {cat:"Transport & Logjistikë", roles:["Shofer CE","Shofer autobusi","Magaziner","Dispeçer"]},
+      {cat:"Ndërtim", roles:["Murator","Armaturist","Suvatues","Elektriçist","Hidraulik"]},
+      {cat:"Shëndetësi", roles:["Infermier","Asistent mjekësor","Farmacist"]},
+      {cat:"Shërbime", roles:["Kuzhinier","Kamerier","Pastrim profesional","Recepsionist"]},
+      {cat:"Administratë & Financë", roles:["Kontabilist","Asistent administrativ","Data-entry"]},
+      {cat:"Shitje & Marketing", roles:["Agjent shitjesh","Social Media Manager"]},
+      {cat:"Prodhim", roles:["Operator makinerish","Punëtor linje"]}
+    ];
+
+    async function ensureUserDoc(uid, email, role) {
+      await setDoc(doc(db, "users", uid), {
+        email, role, createdAt: serverTimestamp()
+      }, { merge: true });
+    }
+
+    function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+    async function seedJobsForCountry(country, employerId, jobseekerId) {
+      const regions = regionsByCountry[country] || regionFallback;
+      const cities = citiesByCountry[country] || ["Qytet Qendror","Qytet Verior","Qytet Jugor"];
+
+      const cat = pick(professions);
+      const role1 = pick(cat.roles);
+      const role2 = pick(cat.roles.filter(r => r !== role1)) || cat.roles[0];
+
+      const items = [
+        {
+          title: `${role1} kërkohet (${country})`,
+          type: "Full-time",
+          category: cat.cat,
+          country,
+          region: pick(regions),
+          city: pick(cities),
+          description: `Kërkohet ${role1} me përvojë, pagesë konkurruese.`,
+          employerId,
+          status: "pending",
+          approvals: [],
+          createdAt: serverTimestamp()
+        },
+        {
+          title: `${role2} kërkohet (${country})`,
+          type: "Full-time",
+          category: cat.cat,
+          country,
+          region: pick(regions),
+          city: pick(cities),
+          description: `Kërkohet ${role2} me kontratë të rregullt.`,
+          employerId,
+          status: "pending",
+          approvals: [],
+          createdAt: serverTimestamp()
+        },
+        {
+          title: `Kërkoj punë si ${role1}`,
+          type: "Full-time",
+          category: cat.cat,
+          country,
+          region: pick(regions),
+          city: pick(cities),
+          description: `Eksperiencë solide si ${role1}. I gatshëm të filloj menjëherë.`,
+          employerId: jobseekerId,
+          status: "pending",
+          approvals: [],
+          createdAt: serverTimestamp()
+        },
+        {
+          title: `Kërkoj punë si ${role2}`,
+          type: "Full-time",
+          category: cat.cat,
+          country,
+          region: pick(regions),
+          city: pick(cities),
+          description: `Disponueshmëri e menjëhershme për ${role2}.`,
+          employerId: jobseekerId,
+          status: "pending",
+          approvals: [],
+          createdAt: serverTimestamp()
+        }
+      ];
+
+      for (const it of items) {
+        await addDoc(collection(db, "jobs"), it);
+      }
+    }
+
+    async function seedProfessions() {
+      await setDoc(doc(db, "meta", "professions"), {
+        data: professions, updatedAt: serverTimestamp()
+      });
+    }
+
+    async function runSeeding(email, password) {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const uid = cred.user.uid;
+      await ensureUserDoc(uid, email, "admin");
+
+      await seedProfessions();
+
+      const employerId = uid; 
+      const jobseekerId = uid; 
+      for (const c of countries) {
+        await seedJobsForCountry(c, employerId, jobseekerId);
+      }
+      return true;
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("f");
+      const out = document.getElementById("out");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        const pass = document.getElementById("pass").value;
+        const btn = document.getElementById("go");
+        btn.disabled = true;
+        out.innerHTML = "<span class='warn'>Duke u lidhur dhe duke krijuar të dhëna provë...</span>";
+        try {
+          await runSeeding(email, pass);
+          out.innerHTML = "<span class='ok'>U krye: profesione + ≥4 njoftime për çdo shtet (pending). Hyni në admin.html për miratim.</span>";
+        } catch (err) {
+          out.innerHTML = "<span class='err'>Gabim: </span><pre>"+(err && err.message || err)+"</pre>";
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Seeder – Antokton</h1>
+  <div class="card">
+    <p>Përdore këtë faqe për të krijuar: <strong>listë profesionësh</strong> dhe <strong>njoftime test</strong> (≥4 për çdo shtet).<br>
+    Hyni me <em>llogarinë admin</em> (email/fjalëkalim që keni aktiv në Firebase Authentication).</p>
+    <form id="f">
+      <label>Email (admin)</label>
+      <input id="email" type="email" required placeholder="admin@antokton.com">
+      <label>Fjalëkalim</label>
+      <input id="pass" type="password" required placeholder="••••••••">
+      <div style="margin-top:12px;">
+        <button id="go" type="submit">SEED</button>
+      </div>
+    </form>
+    <div id="out" style="margin-top:12px;"></div>
+  </div>
+  <div class="card">
+    <h3>Si funksionon?</h3>
+    <ul>
+      <li>Krijon dokumentin <code>meta/professions</code> me ≥20 role profesionesh.</li>
+      <li>Për secilin nga 22 shtetet, shton <strong>4 njoftime</strong> ("pending") – 2 që kërkojnë punëtor & 2 që kërkojnë punë.</li>
+      <li>Për <strong>Antokton</strong> përdor 4 rajone; për vendet e tjera përdor 3 njësi (Veri/Qendër/Jug).</li>
+      <li>Mund t’i miratosh nga <code>admin.html</code> (lyp 2 moderatorë ose 1 admin, sipas rregullave).</li>
+    </ul>
+  </div>
+</body>
+</html>

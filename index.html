@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Antokton – Hallall për shpirtin dhe veprën</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Firebase libraries (compat versions for older browsers) -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+</head>
+<body data-page="home">
+  <header>
+    <nav>
+      <div class="nav-left">
+        <!-- Menutë kryesore -->
+        <a href="index.html">Kreu</a>
+        <a href="#about">Rreth Nesh</a>
+        <a href="#projects">Projektet</a>
+        <a href="#contact">Kontakt</a>
+        <a href="perfshihu.html">Përfshihu dhe ti</a>
+        <a href="galeri.html">Galeri</a>
+        <a href="media.html">Media sociale</a>
+        <a href="radio.html">Radio</a>
+        <a href="tv.html">TV</a>
+        <a href="kurse.html">Shkolla / Kurse</a>
+        <a href="fitra.html">Bamirësi Fitra</a>
+      </div>
+      <div class="nav-right">
+        <!-- Link për panelin admin/moderator; i fshehur si parazgjedhje dhe shfaqet nga JavaScript -->
+        <a href="admin.html" id="admin-panel-link" class="btn" style="display:none; margin-right:10px;">Paneli</a>
+        <!-- Lidhje për identifikim -->
+        <a href="login.html" id="login-link" class="btn">Kyçu</a>
+        <button id="logout-btn" style="display:none;">Dil</button>
+      </div>
+    </nav>
+  </header>
+
+  <section id="home" class="hero">
+    <!-- Logoja e re e ofruar nga përdoruesi -->
+    <img src="img/logo.png" alt="Antokton Logo" class="logo-new">
+    <p class="tagline">Hallall për shpirtin dhe veprën</p>
+  </section>
+
+  <section id="about" class="about">
+    <h2>Rreth Nesh</h2>
+    <p>Antokton është nismë kulturore, edukative dhe teknologjike që synon ruajtjen e trashëgimisë autoktone dhe islame përmes platformave hallall, edukimit shkencor, moral dhe profesional, dhe bashkimit të komuniteteve.</p>
+  </section>
+
+  <section id="projects" class="projects">
+    <h2>Projektet</h2>
+    <div class="project-list">
+      <div class="project-card">
+        <h3>Punë në Europë</h3>
+        <p>Platformë punësimi sipas shteteve dhe profesioneve, me verifikim hallall.</p>
+        <a href="pune.html" class="btn">Hyr</a>
+      </div>
+      <div class="project-card">
+        <h3>Edukimi shkencor, moral &amp; profesional</h3>
+        <p>Burime dhe përmbajtje edukative për zhvillim personal e profesional.</p>
+        <a href="edukim.html" class="btn">Më shumë</a>
+      </div>
+      <div class="project-card">
+        <h3>Antokton TV &amp; Radio</h3>
+        <p>Transmetime hallall nga TV dhe radio, për të gjithë komunitetin.</p>
+        <a href="tv-radio.html" class="btn">Më shumë</a>
+      </div>
+      <div class="project-card">
+        <h3>Fitra (bamirësi)</h3>
+        <p>Platformë për të kontribuar në kauza humanitare dhe bamirësi.</p>
+        <a href="fitra.html" class="btn">Më shumë</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <h2>Kontakt</h2>
+    <p>Email: <a href="mailto:antokton321@gmail.com">antokton321@gmail.com</a></p>
+    <p>Telegram: <a href="https://t.me/antokton" target="_blank">t.me/antokton</a></p>
+    <p>WhatsApp: <a href="https://wa.me/" target="_blank">Dërgo mesazh</a></p>
+  </section>
+
+  <footer>
+    <p>“Allahu e do veprën e mirë të kryer me përsosmëri.”</p>
+    <p>&copy; 1447&nbsp;H Antokton – Të gjitha të drejtat të rezervuara.</p>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kyçu – Antokton</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="login">
+  <!-- Navigimi -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <a href="index.html">Kreu</a>
+      <a href="index.html#about">Rreth Nesh</a>
+      <a href="index.html#projects">Projektet</a>
+      <a href="index.html#contact">Kontakt</a>
+      <a href="perfshihu.html">Përfshihu dhe ti</a>
+      <a href="galeri.html">Galeri</a>
+      <a href="media.html">Media sociale</a>
+      <a href="radio.html">Radio</a>
+      <a href="tv.html">TV</a>
+      <a href="kurse.html">Shkolla / Kurse</a>
+      <a href="fitra.html">Bamirësi Fitra</a>
+    </div>
+    <div class="nav-right">
+      <!-- Mos shfaq butonin e login-it në faqe login -->
+    </div>
+  </nav>
+
+  <!-- Forma e identifikimit -->
+  <main class="login-container">
+    <h1>Identifikohu në Antokton</h1>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="login-email">Email:</label>
+        <input type="email" id="login-email" placeholder="adresa@shembull.com" required>
+      </div>
+      <div class="form-group">
+        <label for="login-password">Fjalëkalimi:</label>
+        <input type="password" id="login-password" placeholder="Fjalëkalimi" required>
+      </div>
+      <div class="form-actions">
+        <button id="sign-in-btn" type="submit">Kyçu</button>
+        <button id="sign-up-btn" type="button">Regjistrohu</button>
+      </div>
+    </form>
+    <p><a href="index.html">Kthehu te Kreu</a></p>
+  </main>
+
+  <!-- Firebase SDK dhe skripti i aplikacionit -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

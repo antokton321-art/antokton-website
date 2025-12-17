@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Punë në Europë – Antokton</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+</head>
+<body data-page="jobs">
+  <!-- Navigation bar -->
+  <nav>
+    <div class="container nav-container">
+      <a href="index.html" class="logo">Antokton</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Kreu</a></li>
+        <li><a href="pune.html" class="active">Punë</a></li>
+        <li><a href="login.html" id="nav-login">Kyçu</a></li>
+        <li><a href="#" id="nav-logout" style="display:none;">Dil</a></li>
+        <li><a href="admin.html" id="nav-admin" style="display:none;">Paneli</a></li>
+      </ul>
+    </div>
+  </nav>
+  <!-- Header section -->
+  <header class="page-header">
+    <div class="container">
+      <h1>Punë</h1>
+      <p>Gjej ose ofro një vend pune në komunitetin Antokton.</p>
+    </div>
+  </header>
+  <!-- Main content -->
+  <main class="container job-page">
+    <div class="filter-bar">
+      <select id="filter-country" class="filter-select"></select>
+      <select id="filter-city" class="filter-select"></select>
+      <select id="filter-category" class="filter-select"></select>
+      <select id="filter-profession" class="filter-select"></select>
+    </div>
+    <div class="add-post-wrapper">
+      <button id="add-post-btn" class="btn-primary" style="display:none;">Shto njoftim</button>
+    </div>
+    <div id="job-list" class="job-list"></div>
+    <div id="undo-container"></div>
+  </main>
+  <!-- Post creation modal -->
+  <div id="post-modal" class="modal">
+    <div class="modal-content">
+      <span id="close-post-modal" class="close">×</span>
+      <h2>Krijo njoftim</h2>
+      <label for="post-title">Titulli:</label>
+      <input type="text" id="post-title" />
+      <label for="post-desc">Përshkrimi:</label>
+      <textarea id="post-desc"></textarea>
+      <label for="post-country">Shteti:</label>
+      <select id="post-country"></select>
+      <label for="post-city">Qyteti:</label>
+      <select id="post-city"></select>
+      <label for="post-category">Kategoria:</label>
+      <select id="post-category"></select>
+      <label for="post-profession">Profesioni:</label>
+      <select id="post-profession"></select>
+      <label for="post-price">Çmimi:</label>
+      <input type="number" id="post-price" />
+      <label for="post-priceunit">Njësia:</label>
+      <select id="post-priceunit">
+        <option value="€/orë">€/orë</option>
+        <option value="€/ditë">€/ditë</option>
+        <option value="€/projekt">€/projekt</option>
+      </select>
+      <button id="submit-post" class="btn-primary">Publiko</button>
+    </div>
+  </div>
+  <footer>
+    <p>“Allahu e do veprën e mirë të kryer me përsosmëri.”</p>
+    <p>&copy; 2025 Antokton – Të gjitha të drejtat të rezervuara.</p>
+  </footer>
+  <!-- Scripts -->
+  <script src="js/script.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
