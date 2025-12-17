@@ -1,56 +1,114 @@
 rules_version = '2';
 service cloud.firestore {
-  /**
-   * Rregulla të thjeshta sigurie për platformën Antokton.
-   * Këto rregulla supozojnë se përdoruesit kanë një claim
-   * `role` (jobSeeker, employer, moderator, admin) në token e tyre të autentikimit.
-   * Të gjitha njoftimet e punës ruhen në koleksionin `jobs` dhe secili
-   * dokument ka fusha:
-   *  - postedBy: uid i përdoruesit që ka krijuar njoftimin
-   *  - status: "pending" ose "approved"
-   *  - approvedBy: listë uid‑sh moderatorësh që e kanë miratuar
-   *  - approvedCount: numri i moderatorëve që e kanë miratuar
-   */
   match /databases/{database}/documents {
-    // Rregulla për koleksionin `users`
-    match /users/{uid} {
-      // Leximi është i lejuar vetëm për vetë përdoruesin
-      allow read: if request.auth != null && request.auth.uid == uid;
-      // Krijimi lejohet nëse përdoruesi po shkruan në dokumentin e vet
-      allow create: if request.auth != null && request.auth.uid == uid;
-      // Përditësimi i rolit lejohet vetëm për admin
-      allow update: if request.auth != null && request.auth.token.role == 'admin';
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // Rregulla për koleksionin `jobs`
-    match /jobs/{jobId} {
-      // Leximi: çdokush mund të lexojë njoftimet e miratuara.
-      // Klienti duhet të filtrojë njoftimet me status `approved`.
-      allow read: if true;
+    function myUid() {
+      return request.auth.uid;
+    }
 
-      // Krijimi: vetëm përdoruesit e autentikuar mund të shtojnë njoftime
-      allow create: if request.auth != null;
+    function myUserDoc() {
+      return get(/databases/$(database)/documents/users/$(myUid()));
+    }
 
-      // Përditësimi:
-      allow update: if request.auth != null && (
-        // Autori mund të ndryshojë njoftimin e vet nëse është ende në pritje
-        (resource.data.postedBy == request.auth.uid && resource.data.status == 'pending') ||
-        // Moderatorët mund të shtojnë uid‑n e tyre në listën e aprovimeve
-        (request.auth.token.role == 'moderator' && resource.data.status == 'pending' &&
-         // përdoruesi nuk duhet të ketë miratuar më parë
-         !(request.auth.uid in resource.data.approvedBy) &&
-         // në të ardhmen approvedCount do të rritet me 1
-         request.resource.data.approvedCount == resource.data.approvedCount + 1 &&
-         // shtohet uid i moderatorit në listën approvedBy
-         request.resource.data.approvedBy.size() == resource.data.approvedBy.size() + 1) ||
-        // Adminët mund të miratojnë dhe të modifikojnë çdo fushë
-        (request.auth.token.role == 'admin')
+    function myRole() {
+      return isSignedIn() ? myUserDoc().data.role : null;
+    }
+
+    function isAdmin() {
+      return myRole() == "admin";
+    }
+
+    function isModerator() {
+      return myRole() == "moderator";
+    }
+
+    function isStaff() {
+      return isAdmin() || isModerator();
+    }
+
+    function validRole(role) {
+      return role in ["admin", "moderator", "member"];
+    }
+
+    function validPostType(t) {
+      return t in ["pune", "shtepi", "juridike", "edukim", "bamiresi", "media"];
+    }
+
+    function validStatus(s) {
+      return s in ["pending", "approved", "rejected"];
+    }
+
+    match /users/{uid} {
+      allow create: if isSignedIn() && uid == myUid()
+        && request.resource.data.role == "member"
+        && request.resource.data.email == request.auth.token.email;
+
+      allow read: if isSignedIn() && (uid == myUid() || isStaff());
+
+      allow update: if isSignedIn() && (
+        (uid == myUid()
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.email == resource.data.email)
+        || (isAdmin() && validRole(request.resource.data.role))
       );
 
-      // Fshirja: vetëm admin ose autori mund ta fshijë njoftimin
-      allow delete: if request.auth != null && (
-        request.auth.token.role == 'admin' || resource.data.postedBy == request.auth.uid
+      allow delete: if false;
+    }
+
+    match /posts/{postId} {
+      allow read: if resource.data.status == "approved"
+        || (isSignedIn() && (isStaff() || resource.data.authorId == myUid()));
+
+      allow create: if isSignedIn()
+        && validPostType(request.resource.data.type)
+        && request.resource.data.authorId == myUid()
+        && request.resource.data.status == "pending"
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 3
+        && request.resource.data.content is string
+        && request.resource.data.content.size() >= 10;
+
+      allow update: if isSignedIn() && (
+        (resource.data.authorId == myUid()
+          && resource.data.status == "pending"
+          && request.resource.data.status == "pending"
+          && request.resource.data.authorId == myUid()
+          && request.resource.data.type == resource.data.type)
+        || (isStaff()
+          && request.resource.data.authorId == resource.data.authorId
+          && request.resource.data.type == resource.data.type
+          && validStatus(request.resource.data.status))
       );
+
+      allow delete: if isSignedIn() && (isStaff() || (resource.data.authorId == myUid() && resource.data.status == "pending"));
+    }
+
+    match /posts/{postId}/comments/{commentId} {
+      allow read: if get(/databases/$(database)/documents/posts/$(postId)).data.status == "approved"
+        || (isSignedIn() && (isStaff() || get(/databases/$(database)/documents/posts/$(postId)).data.authorId == myUid()));
+
+      allow create: if isSignedIn()
+        && request.resource.data.authorId == myUid()
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 1
+        && request.resource.data.text.size() <= 2000;
+
+      allow update, delete: if isSignedIn()
+        && resource.data.authorId == myUid();
+    }
+
+    match /reports/{reportId} {
+      allow create: if isSignedIn()
+        && request.resource.data.reporterId == myUid()
+        && request.resource.data.targetType in ["post", "comment"]
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() >= 3;
+
+      allow read: if isSignedIn() && isStaff();
+      allow update, delete: if isSignedIn() && isStaff();
     }
   }
 }
